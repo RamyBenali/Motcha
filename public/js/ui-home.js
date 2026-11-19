@@ -141,9 +141,14 @@ function build() {
     ),
     h(
       'footer.home-foot',
-      h('button.link', { type: 'button', onclick: openHowTo }, 'Comment jouer ?'),
-      h('span', '·'),
-      h('span', 'Motcha, le jeu de mots à jouer entre potes'),
+      h(
+        'div.foot-row',
+        h('button.link', { type: 'button', onclick: openHowTo }, 'Comment jouer ?'),
+        h('span', '·'),
+        h('span', 'Motcha, le jeu de mots à jouer entre potes'),
+      ),
+      h('p.foot-credits', 'Imaginé et créé avec ❤️ par ', h('b', 'Ramy & Yasmine'), ', fondateurs de Motcha'),
+      h('p.foot-copy', `© ${new Date().getFullYear()} Motcha · Tous droits réservés`),
     ),
   );
 }
