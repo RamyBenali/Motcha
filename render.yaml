@@ -1,0 +1,12 @@
+# Déploiement en un clic sur Render (https://render.com) : « New » → « Blueprint » → choisir ce dépôt.
+services:
+  - type: web
+    name: motcha
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

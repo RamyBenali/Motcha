@@ -1,0 +1,15 @@
+{
+  "name": "Motcha",
+  "short_name": "Motcha",
+  "description": "Le jeu de mots à deviner, en solo, en duel ou entre amis.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#100e24",
+  "theme_color": "#100e24",
+  "lang": "fr",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
