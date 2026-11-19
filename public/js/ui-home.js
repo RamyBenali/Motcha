@@ -1,18 +1,21 @@
 // Écran d'accueil : profil, parties entre amis, modes solo.
-import { h, clear, avatarEl, icon } from './dom.js';
+import { h, clear, avatarEl, icon, keepFocus } from './dom.js';
 import { S, actions, dailyKeyNow, untilNextDaily } from './core.js';
 import { profile, saveProfile, prefs, savePrefs, stats, refreshStats, dailyId, liveDailyStreak } from './store.js';
-import { randomName } from './consts.js';
+import { randomName, LANG_NAMES } from './consts.js';
 import { logo, toolButtons } from './parts.js';
 import { openAvatarPicker, openSoloConfig, openStats, openHowTo, langOptions } from './ui-panels.js';
 import { segmented } from './controls.js';
 import { play } from './sfx.js';
+import { toast } from './fx.js';
 
 let root = null;
 let avatarBtn;
 let nameInput;
 let codeInput;
-let soloHead;
+let langSlot;
+let soloLang;
+let roomLang;
 let dailyText;
 let survivalText;
 let connEl;
@@ -95,13 +98,21 @@ function build() {
 
   dailyText = h('small');
   survivalText = h('small');
-  soloHead = h('div.card-head');
+  langSlot = h('div.lang-slot');
+  soloLang = h('span.tag');
+  roomLang = h('small.muted.center');
   connEl = h('p.home-conn', { hidden: true });
 
   root = h(
     'section.screen.home',
     h('header.topbar', h('div.topbar-left'), h('div.topbar-right', toolButtons())),
-    h('div.hero', logo('big'), h('p.tagline', 'Devine le mot secret. ', h('b', 'Bats tes potes.'))),
+    h(
+      'div.hero',
+      logo('big'),
+      h('p.tagline', 'Devine le mot secret. ', h('b', 'Bats tes potes.')),
+      // Le choix vaut pour tout : mot du jour, entraînement, survie et prochain salon créé.
+      h('div.lang-row', h('span.eyebrow', 'Langue des mots'), langSlot),
+    ),
     connEl,
     h(
       'div.home-grid',
@@ -116,12 +127,13 @@ function build() {
         h('div.card-head', h('h2', 'Entre amis'), h('span.tag', '2 à 8 joueurs')),
         h('p.muted', 'Crée un salon, envoie le lien à tes amis et affrontez-vous en direct : course au mot ou maître du mot.'),
         h('button.btn.primary.big.wide', { type: 'button', onclick: () => actions.createRoom() }, '🎉 Créer un salon'),
+        roomLang,
         h('div.or', h('span', 'ou rejoins un salon')),
         h('div.join-row', codeInput, h('button.btn.violet.big', { type: 'button', onclick: join }, 'Rejoindre')),
       ),
       h(
         'div.card.solo-card',
-        soloHead,
+        h('div.card-head', h('h2', 'En solo'), soloLang),
         modeCard('📅', 'Mot du jour', dailyText, () => actions.playDaily(), 'daily'),
         modeCard('🎯', 'Entraînement', h('small', 'Choisis tes règles et joue autant que tu veux'), () => openSoloConfig(() => actions.playSolo('free'))),
         modeCard('🔥', 'Survie', survivalText, () => actions.playSolo('survival')),
@@ -136,21 +148,25 @@ function build() {
   );
 }
 
-function paintSoloHead() {
-  clear(
-    soloHead,
-    h('h2', 'En solo'),
-    segmented(
-      langOptions().map(([code, label]) => [code, label.split(' ')[0], label.split(' ').slice(1).join(' ')]),
-      prefs.lang,
-      (value) => {
-        prefs.lang = value;
-        savePrefs();
-        homeScreen.update();
-      },
-      { cls: 'compact', label: 'Langue des mots' },
-    ),
-  );
+const FLAGS = { fr: '🇫🇷', en: '🇬🇧' };
+
+function setLang(value) {
+  prefs.lang = value;
+  savePrefs();
+  play('pop');
+  toast(value === 'en' ? 'Mots en anglais : à toi de trouver des mots anglais' : 'Mots en français', { icon: FLAGS[value] });
+  homeScreen.update();
+}
+
+/** Le sélecteur de langue des mots, et son rappel sur chaque carte. */
+function paintLang() {
+  const lang = prefs.lang;
+  if (langSlot.dataset.lang !== lang) {
+    langSlot.dataset.lang = lang;
+    keepFocus(langSlot, () => clear(langSlot, segmented(langOptions(), lang, setLang, { cls: 'lang-seg', label: 'Langue des mots' })));
+  }
+  soloLang.textContent = `${FLAGS[lang]} ${LANG_NAMES[lang]}`;
+  roomLang.textContent = lang === 'en' ? 'Les mots seront en anglais (modifiable dans le salon).' : 'Les mots seront en français (modifiable dans le salon).';
 }
 
 export const homeScreen = {
@@ -168,7 +184,7 @@ export const homeScreen = {
   },
 
   update() {
-    paintSoloHead();
+    paintLang();
     const best = stats.survival.best;
     survivalText.textContent = best ? `Enchaîne les mots sans te tromper · record ${best} pts` : 'Enchaîne les mots sans te tromper';
     connEl.hidden = S.conn === 'open';

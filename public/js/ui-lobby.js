@@ -185,8 +185,9 @@ function paintRules(room) {
     );
     // Les règles choisies servent de point de départ au prochain salon créé.
     const snapshot = JSON.stringify(s);
-    if (JSON.stringify(prefs.multi) !== snapshot) {
+    if (JSON.stringify(prefs.multi) !== snapshot || prefs.lang !== s.lang) {
       prefs.multi = JSON.parse(snapshot);
+      prefs.lang = s.lang; // la langue choisie ici reste celle de l'accueil au retour
       savePrefs();
     }
   } else {

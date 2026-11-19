@@ -246,7 +246,8 @@ on('suggestion', (m) => gameScreen.suggestion(String(m.word ?? '')));
 
 // ───────────────────────── actions ─────────────────────────
 
-actions.createRoom = () => request({ t: 'create', secret, profile: myProfile(), settings: { lang: prefs.lang, ...prefs.multi } });
+// Les règles du dernier salon servent de base, mais la langue est celle choisie à l'accueil.
+actions.createRoom = () => request({ t: 'create', secret, profile: myProfile(), settings: { ...prefs.multi, lang: prefs.lang } });
 
 actions.joinRoom = (code) => {
   fromLink = false;

@@ -889,6 +889,28 @@ a {
   font-weight: 800;
 }
 
+.lang-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+}
+
+.lang-slot {
+  display: flex;
+}
+
+.lang-seg .seg-b {
+  min-height: 42px;
+  padding: 8px 16px;
+  font-size: 1.02rem;
+}
+
+.center {
+  text-align: center;
+}
+
 .home-conn {
   text-align: center;
   color: var(--gold-text);
